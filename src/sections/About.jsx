@@ -15,7 +15,7 @@ export default function About() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="relative"
         >
-          <div className="aspect-[4/5] w-full overflow-hidden rounded-[2rem]">
+          <div className="aspect-4/5 w-full overflow-hidden rounded-4xl">
             <img
               src={aboutImage}
               alt="Tunas Mandiri Psychology"
