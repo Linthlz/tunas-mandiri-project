@@ -3,18 +3,32 @@ import { motion } from 'framer-motion'
 import Button from '../components/Button.jsx'
 import SectionTitle from '../components/SectionTitle.jsx'
 import services from '../data/services.js'
+import api from '../api/axios.js' // Import instance axios yang telah dibuat
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false)
-  const [form, setForm] = useState({ name: '', phone: '', service: services[0].title, message: '' })
+  const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
+  const [form, setForm] = useState({ name: '', phone: '', service: services[0]?.title || '', message: '' })
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setSubmitted(true)
+    setLoading(true)
+    setErrorMsg('')
+
+    try {
+      await api.post('/konsultasi', form)
+      setSubmitted(true)
+    } catch (err) {
+      console.error('Error submitting form:', err.response?.data || err.message)
+      setErrorMsg(err.response?.data?.message || 'Gagal mengirim permintaan. Silakan coba lagi.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -73,6 +87,12 @@ export default function Contact() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              {errorMsg && (
+                <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600 border border-red-200">
+                  {errorMsg}
+                </div>
+              )}
+
               <div>
                 <label htmlFor="name" className="mb-2 block text-sm font-medium text-ink-900">Nama Lengkap</label>
                 <input
@@ -128,8 +148,8 @@ export default function Contact() {
                 />
               </div>
 
-              <Button type="submit" full size="lg">
-                Kirim Permintaan Reservasi
+              <Button type="submit" full size="lg" disabled={loading}>
+                {loading ? 'Mengirim...' : 'Kirim Permintaan Reservasi'}
               </Button>
               <p className="text-center text-xs text-ink-400">
                 Data Anda bersifat rahasia dan hanya digunakan untuk proses reservasi.
